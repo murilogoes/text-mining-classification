@@ -91,5 +91,6 @@ X = vectorizer.fit_transform(documents)
 y = labels
 
 #mandando treinar
+
 #train(MultinomialNB(alpha=0.05), X, y, [0,1])
 train(svm.SVC(kernel='linear', C=1.0), X,y, [0,1])
