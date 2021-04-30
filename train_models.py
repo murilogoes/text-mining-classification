@@ -59,7 +59,7 @@ documents = []
 labels = []
 
 # lendo o arquivo csv ja limpo e tratado e adicionando em um array com cada texto e sua respectiva classificacao
-with open('data/todos_bos_contextos_tratados.csv','r') as csvfile:
+with open('data/todos_bos_contextos_tratados_sem_2021.csv','r') as csvfile:
     next(csvfile)
     reader = csv.reader(csvfile, delimiter =',')
     for row in reader:
@@ -76,9 +76,9 @@ with open('data/vectorizer/vectorizer.pickle', 'wb') as f:
     pickle.dump(vectorizer, f)
 
 # aqui eu estou fazendo um undersampler para balancear o dataset
-#rs = RandomUnderSampler()
+rs = RandomUnderSampler()
 # trocando para oversampler com rain forest ficou super bom
-rs = RandomOverSampler()
+#rs = RandomOverSampler()
 X, y = rs.fit_resample(X, y)
 
 
@@ -87,11 +87,7 @@ X, y = rs.fit_resample(X, y)
 # Naive Bayes
 # https://scikit-learn.org/stable/modules/generated/sklearn.naive_bayes.MultinomialNB.html
 # testei o alpha em diversos valores, o 0.5 ficou com uma precisao melhor (0.81)
-# Erro 0 249
-# erro 1 300
 #train(MultinomialNB(alpha=0.5), X, y, [0,1])
-
-#train(MultinomialNB(), X, y, [0,1])
 
 
 # Linear SVC
@@ -99,7 +95,7 @@ X, y = rs.fit_resample(X, y)
 #train(svm.LinearSVC(max_iter=10000), X,y, [0,1])
 
 # Random Forest
-# parece que aprende mais sobre a classe 0 e a 1 erra muito
+# parece que aprende mais sobre a classe 0 e a 1 erra muito mas quando eu fiz o oversampler melhorou demais
 # https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html
 train(RandomForestClassifier(n_estimators=100), X,y, [0,1])
 
@@ -111,10 +107,3 @@ train(RandomForestClassifier(n_estimators=100), X,y, [0,1])
 
 # SVC demora muito
 # train(svm.SVC(kernel='linear', C=1.0), X,y, [0,1])
-
-
-
-#tentar linearSvc SGDClassifier Random Forest  Multilayer Perceprtron (MLP)
-
-
-

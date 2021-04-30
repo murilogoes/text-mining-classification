@@ -8,12 +8,12 @@ inicio = time.time()
 
 clean_text = CleanText()
 
-with open('data/todos_bos_contextos.csv', encoding="utf8") as csv_file:
+with open('data/todos_bos_contextos_somente_2021.csv', encoding="utf8") as csv_file:
     csv_reader = csv.reader(csv_file, delimiter=';')
 
     csv_reader.__next__()
 
-    with open('data/todos_bos_contextos_tratados.csv', 'w', newline='') as file:
+    with open('data/todos_bos_contextos_tratados_somente_2021.csv', 'w', newline='') as file:
         writer = csv.writer(file, delimiter=',')
         writer.writerow(["historico", "contexto"])
         for row in csv_reader:
