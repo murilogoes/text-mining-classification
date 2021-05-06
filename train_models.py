@@ -1,6 +1,7 @@
 import csv
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from sklearn.feature_extraction.text import TfidfVectorizer,CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
@@ -9,11 +10,17 @@ from sklearn import svm
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.linear_model import SGDClassifier
 from sklearn.neural_network import MLPClassifier
+from sklearn.preprocessing import LabelBinarizer
+
+from BM25Vectorizer import BM25Vectorizer
 
 
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import confusion_matrix
 from sklearn.metrics import precision_score, recall_score, f1_score
+from sklearn.model_selection import cross_val_score
+from sklearn.model_selection import cross_validate
+
 
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
@@ -38,6 +45,19 @@ def train(classifier, X, y, class_names):
     ##Predicoes para medição da Acurácia
     y_pred = trained_model.predict(X_test)
 
+    #apliando cross validation
+    #rfc_cv_score = cross_val_score(classifier, X, y, cv=5, scoring='accuracy')
+    #cv_results = cross_val_score(classifier, X, y, cv=5, average=None, scoring=['accuracy', 'precision', 'recall', 'f1', 'roc_auc'])
+    lb = LabelBinarizer()
+
+    # y = np.array([number[0] for number in lb.fit_transform(y)])
+
+    #cv_results = cross_val_score(classifier, X, y, cv=5, scoring='f1')
+    # cv_results = cross_validate(classifier, X, y, cv=10, scoring=['accuracy', 'precision', 'recall', 'f1', 'roc_auc'])
+    # cv_results_df = pd.DataFrame(cv_results)
+
+#    print(cv_results_df)
+
     # na matriz de confusao eu consigo ter uma estimativa de quanto acertou/errou
     cnf_matrix = confusion_matrix(y_test, y_pred)
     np.set_printoptions(precision=2)
@@ -46,6 +66,12 @@ def train(classifier, X, y, class_names):
     print("F1: %s" % str(f1_score(y_test, y_pred, average=None)))
     print("Recall: %s" % str(recall_score(y_test, y_pred, average=None)))
     print("Precision: %s" % str(precision_score(y_test, y_pred, average=None)))
+
+    # print("=== All AUC Scores ===")
+    # print(cv_results)
+    # print('\n')
+    # print("=== Mean AUC Score ===")
+    # print("Mean AUC Score - Random Forest: ", cv_results_df.mean())
 
     plt.figure()
     cfs_matrix = ConfusionMatrix()
@@ -59,7 +85,7 @@ documents = []
 labels = []
 
 # lendo o arquivo csv ja limpo e tratado e adicionando em um array com cada texto e sua respectiva classificacao
-with open('data/todos_bos_contextos_tratados_sem_2021.csv','r') as csvfile:
+with open('data/todos_bos_contextos_tratados.csv','r') as csvfile:
     next(csvfile)
     reader = csv.reader(csvfile, delimiter =',')
     for row in reader:
@@ -68,17 +94,23 @@ with open('data/todos_bos_contextos_tratados_sem_2021.csv','r') as csvfile:
 
 # criando o vetor tf-idf
 #vectorizer = TfidfVectorizer(use_idf=True)
-vectorizer = TfidfVectorizer(min_df=5, max_df=0.8)
+# vectorizer = TfidfVectorizer(min_df=5, max_df=0.8)
+# X = vectorizer.fit_transform(documents)
+# y = labels
+
+vectorizer = BM25Vectorizer()
 X = vectorizer.fit_transform(documents)
 y = labels
+
+
 
 with open('data/vectorizer/vectorizer.pickle', 'wb') as f:
     pickle.dump(vectorizer, f)
 
 # aqui eu estou fazendo um undersampler para balancear o dataset
-rs = RandomUnderSampler()
+#rs = RandomUnderSampler()
 # trocando para oversampler com rain forest ficou super bom
-#rs = RandomOverSampler()
+rs = RandomOverSampler()
 X, y = rs.fit_resample(X, y)
 
 
