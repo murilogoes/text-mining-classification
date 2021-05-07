@@ -2,11 +2,10 @@ import csv
 import numpy as np
 import matplotlib.pyplot as plt
 from sklearn.metrics import confusion_matrix
-from ConfusionMatrix import ConfusionMatrix
+from utils.ConfusionMatrix import ConfusionMatrix
+from utils.Tester import Tester
 
 from sklearn.metrics import precision_score, recall_score, f1_score
-
-
 
 import pickle
 
@@ -43,6 +42,10 @@ with open('data/vectorizer/vectorizer.pickle', 'rb') as f:
 with open('data/trained_models/trained_model.pickle', 'rb') as f:
     ml = pickle.load(f)
     y_pred = ml.predict(X)
+
+    test = Tester()
+    test.test_split()
+
 
     cnf_matrix = confusion_matrix(labels, y_pred)
     np.set_printoptions(precision=2)

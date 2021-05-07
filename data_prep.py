@@ -1,7 +1,7 @@
 import time
 import csv
 
-from CleanText import CleanText
+from utils.CleanText import CleanText
 
 
 inicio = time.time()

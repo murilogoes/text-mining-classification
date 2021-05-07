@@ -1,6 +1,6 @@
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
-from BM25Transformer import BM25Transformer
+from utils.BM25Transformer import BM25Transformer
 
 
 class BM25Vectorizer(CountVectorizer):
