@@ -1,12 +1,10 @@
 from fastapi import FastAPI,File, UploadFile
-from starlette.requests import Request
+from fastapi.responses import StreamingResponse
+import io
 from pydantic import BaseModel
-from typing import Optional
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
 
 import pandas as pd
-from io import StringIO
 
 
 import pickle
@@ -33,20 +31,13 @@ class TextoPredicao(BaseModel):
     texto: str
 
 
-# @app.post("/items/")
-# async def create_item(item: Item):
-#     return item
-
-
-@app.post("/predict/")
-async def predicao_texto(predicao: TextoPredicao):
-    clean_documents = []
+def predict(documents):
 
     clean_text = CleanText()
+    clean_documents = []
 
-    clean_documents.append(clean_text.clean(predicao.texto))
-
-    # criando o vetor tf-idf
+    for document in documents:
+        clean_documents.append(clean_text.clean(document))
 
     with open('data/vectorizer/vectorizer_tfidf.pickle', 'rb') as f:
         vectorizer = pickle.load(f)
@@ -55,21 +46,33 @@ async def predicao_texto(predicao: TextoPredicao):
     with open('data/trained_models/trained_model.pickle', 'rb') as f:
         ml = pickle.load(f)
         y_pred = ml.predict(X)
-        mensagem_retorno = "Contexto Não-Policial" if int(y_pred[0]) == 0 else "Contexto Policial"
+        return y_pred
 
+@app.post("/predict/")
+async def predicao_texto(predicao: TextoPredicao):
+    documents = []
+    documents.append(predicao.texto)
+    y_pred = predict(documents)
+    mensagem_retorno = "Contexto Não-Policial" if int(y_pred[0]) == 0 else "Contexto Policial"
     return {"prediction": mensagem_retorno}
 
 @app.post("/lote/")
 async def predicao_lote(file: UploadFile = File(...)):
-    csv_reader = csv.DictReader(codecs.iterdecode(file.file, 'utf-8-sig'), delimiter=";")
+
+    csv_arquivo = codecs.iterdecode(file.file, 'utf-8-sig')
+    csv_reader = csv.DictReader(csv_arquivo, delimiter=";")
+
     historicos = []
     for row in csv_reader:
         historicos.append(row['Historico'])
 
+    predictions = predict(historicos)
 
-    # csv_reader = csv.DictReader(codecs.iterdecode(file.file, 'utf-8'), delimiter=";")
-    # for row in csv_reader:
-    #     print(row['Historico'])
+    df = pd.DataFrame({"Historico": historicos, "Contexto": predictions})
+    stream = io.StringIO()
+    df.to_csv(stream, index=False,  encoding="utf-8", sep=";")
 
-    print(file.filename)
-    return {"mensagem": "dahora"}
+    response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+    response.headers["Content-Disposition"] = "attachment; filename=export.csv"
+
+    return response
