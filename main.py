@@ -1,5 +1,10 @@
 from fastapi import FastAPI,File, UploadFile
 from fastapi.responses import StreamingResponse
+from starlette.responses import FileResponse
+from starlette.responses import RedirectResponse  # add this
+
+from fastapi.staticfiles import StaticFiles
+
 import io
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,15 +19,12 @@ import codecs
 from utils.CleanText import CleanText
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
-origins = [
-    "http://localhost:4200",
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_credentials=True,
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -48,7 +50,13 @@ def predict(documents):
         y_pred = ml.predict(X)
         return y_pred
 
-@app.post("/predict/")
+@app.get("/")
+async def read_index():
+    return FileResponse('static/index.html')
+    #return RedirectResponse(url="/static/index.html")  # change to this
+
+
+@app.post("/predict")
 async def predicao_texto(predicao: TextoPredicao):
     documents = []
     documents.append(predicao.texto)
