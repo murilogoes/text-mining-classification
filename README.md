@@ -30,4 +30,4 @@ Observação:
 
 Há um modelo criado com boletins de ocorrência entre os anos de 2015 a 2020 utilizando o algoritmo de classificação Random Forest com vetorização TF-IDF e oversampling, onde identifica na leitura de um texto, se o crime de morte ocorreu dentro ou fora de um contexto policial, ou seja, se haveria condições de forças policiais evitarem que ele ocorresse.
 
-O modelo se encontra disponível para download em: [a link](https://drive.google.com/file/d/1nb7p-oWIZ8YlcxBcxyCKrgvwLqx-b1X8/view?usp=share_link) 
+O modelo se encontra disponível para download [clicando aqui](https://drive.google.com/file/d/1nb7p-oWIZ8YlcxBcxyCKrgvwLqx-b1X8/view?usp=share_link) 
