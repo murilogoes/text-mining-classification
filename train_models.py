@@ -41,7 +41,7 @@ documents = []
 labels = []
 
 # lendo o arquivo csv ja limpo e tratado e adicionando em um array com cada texto e sua respectiva classificacao
-with open('data/todos_bos_contextos_tratados.csv', 'r') as csvfile:
+with open('data/todos_bos_contextos_tratados.csv', 'r', encoding = "ISO-8859-1") as csvfile:
     next(csvfile)
     reader = csv.reader(csvfile, delimiter=',')
     for row in reader:
